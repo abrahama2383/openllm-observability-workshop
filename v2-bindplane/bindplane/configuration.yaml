@@ -1,0 +1,188 @@
+apiVersion: bindplane.observiq.com/v2
+kind: Configuration
+metadata:
+  name: OpenLLM
+spec:
+  contentType: ''
+  measurementInterval: ''
+  topologyInterval: ''
+  disableLegacyEnvVarNormalization: false
+  sources:
+  - id: 01M2VBRH869MTK4TB3AD3TXJTX
+    displayName: this for OpenLLM
+    type: otlp:3
+    parameters:
+    - name: telemetry_types
+      value:
+      - Logs
+      - Metrics
+      - Traces
+    - name: transport
+      value: tcp
+    - name: unix_socket_path
+      value: ''
+    - name: listen_address
+      value: 0.0.0.0
+    - name: grpc_port
+      value: 4317
+    - name: http_port
+      value: 4318
+    - name: grpc_max_recv_msg_size_mib
+      value: 20
+    - name: enable_tls
+      value: false
+    - name: cert_file
+      value: ''
+    - name: key_file
+      value: ''
+    - name: mutual_tls
+      value: false
+    - name: ca_file
+      value: ''
+    - name: enable_grpc_timeout
+      value: true
+    - name: grpc_max_connection_idle
+      value: 60
+    - name: grpc_max_connection_age
+      value: 60
+    - name: grpc_max_connection_age_grace
+      value: 300
+    - name: include_metadata
+      value: false
+    - name: enable_cors
+      value: false
+    - name: cors_allowed_origins
+      value: []
+    - name: cors_allowed_headers
+      value: []
+    - name: cors_max_age
+      value: 0
+    processors:
+    - id: mask-jakarta-span
+      displayName: mask Jakarta in span attributes
+      type: transform:2
+      parameters:
+      - name: telemetry_type
+        value: Traces
+      - name: statements
+        value:
+        - replace_all_patterns(attributes, "value", "(?i)jakarta", "*******")
+      - name: conditions
+        value: []
+      - name: error_mode
+        value: ignore
+      - name: traces_context
+        value: span
+      - name: logs_context
+        value: log
+      - name: metrics_context
+        value: datapoint
+    - id: mask-jakarta-resource
+      displayName: mask Jakarta in resource attributes
+      type: transform:2
+      parameters:
+      - name: telemetry_type
+        value: Traces
+      - name: statements
+        value:
+        - replace_all_patterns(attributes, "value", "(?i)jakarta", "*******")
+      - name: conditions
+        value: []
+      - name: error_mode
+        value: ignore
+      - name: traces_context
+        value: resource
+      - name: logs_context
+        value: log
+      - name: metrics_context
+        value: datapoint
+    routes:
+      logs:
+      - id: '0'
+        components:
+        - destinations/d-hpm49270
+      metrics:
+      - id: '0'
+        components:
+        - destinations/d-hpm49270
+      traces:
+      - id: '0'
+        components:
+        - destinations/d-hpm49270
+  - id: host-metrics
+    displayName: host cpu memory disk
+    type: host:3
+    parameters:
+    - name: enable_process
+      value: false
+    - name: collection_interval
+      value: 60
+    - name: metric_filtering
+      value:
+      - system.disk.io_time
+      - system.disk.merged
+      - system.disk.operation_time
+      - system.disk.pending_operations
+      - system.disk.weighted_io_time
+      - system.processes.count
+      - system.processes.created
+    - name: process_metrics_filtering
+      value:
+      - process.context_switches
+      - process.cpu.utilization
+      - process.disk.operations
+      - process.memory.utilization
+      - process.open_file_descriptors
+      - process.paging.faults
+      - process.signals_pending
+      - process.threads
+      - process.handles
+    - name: mute_process_name_error
+      value: true
+    - name: mute_process_exe_error
+      value: true
+    - name: mute_process_io_error
+      value: false
+    - name: mute_process_user_error
+      value: false
+    - name: enable_process_filter
+      value: false
+    - name: process_include
+      value: []
+    - name: process_exclude
+      value: []
+    - name: process_filter_match_strategy
+      value: regexp
+    processors:
+    - id: host-cum-to-delta
+      displayName: cumulative to delta (Dynatrace needs delta)
+      type: cumulative_to_delta:1
+      parameters:
+      - name: include_metric_types
+        value:
+        - sum
+      - name: include_metrics
+        value: []
+      - name: include_match_type
+        value: strict
+      - name: exclude_metrics
+        value: []
+      - name: exclude_match_type
+        value: strict
+      - name: exclude_metric_types
+        value: []
+      - name: max_staleness
+        value: 1h
+      - name: initial_value
+        value: auto
+    routes:
+      metrics:
+      - id: '0'
+        components:
+        - destinations/d-hpm49270
+  destinations:
+  - id: d-hpm49270
+    name: hpm49270:9
+  selector:
+    matchLabels:
+      configuration: OpenLLM
