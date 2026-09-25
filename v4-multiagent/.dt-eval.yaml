@@ -1,0 +1,31 @@
+# dt-evals config: LLM-as-a-judge over the openllmdemo spans already in Dynatrace.
+# Judge = the same local Ollama model (free). Secrets come from env, never this file:
+#   DT_ENV_URL=https://<tenant>.apps.dynatrace.com   DT_API_TOKEN=<platform token>
+#   OPENAI_BASE_URL=http://127.0.0.1:11434/v1        OPENAI_API_KEY=ollama
+schemaVersion: 3
+name: openllmdemo-multiagent
+
+dynatrace: {}
+
+judge:
+  provider: openai          # OpenAI-compatible API -> Ollama via OPENAI_BASE_URL
+  model: qwen2.5:3b         # ollama pull qwen2.5:3b; small CPU judge, use a bigger model for real gates
+  timeout: 180000           # CPU inference is slow
+  maxRetries: 1
+  concurrency: 1            # one CPU, one judge call at a time
+
+scope:
+  service: openllmdemo
+  since: 6h
+  filters:
+    gen_ai.agent.name: reviewer   # judge the final answer only
+  sampling:
+    strategy: latest
+    count: 10
+
+metrics:
+  enabled:
+    - relevance
+    - faithfulness
+    - hallucination
+    - answer-completeness

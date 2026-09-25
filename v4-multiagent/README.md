@@ -63,3 +63,48 @@ from `gen_ai.*` span attributes, no config:
 
 > Prompts and responses are captured by default. Set
 > `TRACELOOP_TRACE_CONTENT=false` if they may contain sensitive data.
+
+## Evaluate answer quality with dt-evals (LLM-as-a-judge)
+
+Traces tell you *how* the agents ran. [dt-evals](https://github.com/dynatrace-oss/dt-evals)
+tells you *how good the answer was*: it pulls the `gen_ai.*` spans back out of
+Dynatrace, scores each reviewer answer with an LLM judge, and writes the
+scores back as `gen_ai.evaluation.result` business events linked to the
+`trace.id` — they show up in **AI Observability → Evals**.
+
+The judge is a local Ollama model (`qwen2.5:3b`, one step up from the app's 1.5B), so it stays free.
+[`.dt-eval.yaml`](.dt-eval.yaml) judges the reviewer agent's final answers on
+`relevance`, `faithfulness`, `hallucination` and `answer-completeness`.
+
+```bash
+# Node.js >= 20
+npm install -g @dynatrace-oss/dt-evals
+
+# Platform token with storage:spans:read, storage:bizevents:read,
+# storage:events:write — `dt-evals doctor create-token` walks you through it
+export DT_ENV_URL=https://<your-tenant>.apps.dynatrace.com
+export DT_API_TOKEN=<platform token>
+export OPENAI_BASE_URL=http://127.0.0.1:11434/v1
+export OPENAI_API_KEY=ollama        # Ollama ignores it, the client needs a value
+
+dt-evals validate
+dt-evals run --dry-run              # see which spans would be judged
+dt-evals run --store-evaluated-prompt
+```
+
+Test run: 21 answers judged on relevance, 57% pass rate, about 20 min on a 2-vCPU VM.
+
+![evals overview](docs/08-evals-overview.png)
+
+Query the results:
+
+```
+fetch bizevents
+| filter event.type == "gen_ai.evaluation.result"
+| summarize avg_score = avg(gen_ai.evaluation.score.value),
+            fails = countIf(gen_ai.evaluation.score.label == "fail"),
+            by: {gen_ai.evaluation.name}
+```
+
+> A 3B model is a weak judge — fine to show the loop working, not for real
+> quality gates. Point `OPENAI_BASE_URL`/`judge.model` at a larger model for that.
