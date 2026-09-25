@@ -18,6 +18,7 @@ different path each time.
 | [`v1-dynatrace-direct`](v1-dynatrace-direct) | Instrument it; export straight to Dynatrace SaaS | [README](v1-dynatrace-direct/README.md) |
 | [`v2-bindplane`](v2-bindplane) | Route through a local Bindplane collector | [README](v2-bindplane/README.md) |
 | [`v3-oneagent`](v3-oneagent) | Route through the Dynatrace OneAgent already on the host | [README](v3-oneagent/README.md) |
+| [`v4-multiagent`](v4-multiagent) | Multi-agent app (coordinator → researcher → reviewer, Wikipedia tools, local Ollama) on any of the three paths | [README](v4-multiagent/README.md) |
 
 Do them in order — each stage's README opens with a diff against the
 previous one, so you see exactly what instrumentation cost you in code.
