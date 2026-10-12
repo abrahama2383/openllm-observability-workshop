@@ -1,0 +1,6 @@
+openai
+traceloop-sdk
+redis
+chromadb
+opentelemetry-instrumentation-redis
+opentelemetry-instrumentation-chromadb

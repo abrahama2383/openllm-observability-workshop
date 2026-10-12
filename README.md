@@ -19,6 +19,8 @@ different path each time.
 | [`v2-bindplane`](v2-bindplane) | Route through a local Bindplane collector | [README](v2-bindplane/README.md) |
 | [`v3-oneagent`](v3-oneagent) | Route through the Dynatrace OneAgent already on the host | [README](v3-oneagent/README.md) |
 | [`v4-multiagent`](v4-multiagent) | Multi-agent app (coordinator → researcher → reviewer, Wikipedia tools, local Ollama) on any of the three paths | [README](v4-multiagent/README.md) |
+| [`v5-router`](v5-router) | A router agent picks a route per question (simple / reasoning / research / blocked); the decision is a span attribute | [README](v5-router/README.md) |
+| [`v6-rag-cache`](v6-rag-cache) | Adds a Redis semantic cache + conversation memory and a Chroma vector DB (`docs` RAG route); Redis/Chroma auto-instrumented as spans | [README](v6-rag-cache/README.md) |
 
 Do them in order — each stage's README opens with a diff against the
 previous one, so you see exactly what instrumentation cost you in code.
