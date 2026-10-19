@@ -16,6 +16,7 @@ different path each time.
 |---|---|---|
 | [`00-base`](00-base) | The app, uninstrumented. Your starting point. | [README](00-base/README.md) |
 | [`v1-dynatrace-direct`](v1-dynatrace-direct) | Instrument it; export straight to Dynatrace SaaS | [README](v1-dynatrace-direct/README.md) |
+| [`v1a-otel`](v1a-otel) | Same as v1, but plain OpenTelemetry (`opentelemetry-instrumentation-openai-v2`) instead of OpenLLMetry — with a side-by-side comparison | [README](v1a-otel/README.md) |
 | [`v2-bindplane`](v2-bindplane) | Route through a local Bindplane collector | [README](v2-bindplane/README.md) |
 | [`v3-oneagent`](v3-oneagent) | Route through the Dynatrace OneAgent already on the host | [README](v3-oneagent/README.md) |
 | [`v4-multiagent`](v4-multiagent) | Multi-agent app (coordinator → researcher → reviewer, Wikipedia tools, local Ollama) on any of the three paths | [README](v4-multiagent/README.md) |

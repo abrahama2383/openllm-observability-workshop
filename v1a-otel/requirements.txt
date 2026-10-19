@@ -1,0 +1,6 @@
+openai
+httpx  # openai 3.x no longer pulls it in; openai-v2 instrumentation imports it
+opentelemetry-sdk
+opentelemetry-exporter-otlp-proto-http
+opentelemetry-instrumentation-openai-v2
+opentelemetry-util-genai==1.1b0  # 1.2b0 renamed instruments -> _instruments, breaks openai-v2 2.4b0
